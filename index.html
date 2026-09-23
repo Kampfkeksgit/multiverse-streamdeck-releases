@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiverse Deck</title>
+<meta name="description" content="Ein Macro-Pad, das mitwächst: ein Master-Modul mit Touchdisplay, daneben Tasten, Regler und Drehregler zum Anstecken.">
+<meta property="og:title" content="Multiverse Deck">
+<meta property="og:description" content="Ein Macro-Pad, das mitwächst.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237C5CFF'/><rect x='8' y='8' width='7' height='7' rx='2' fill='%23fff'/><rect x='17' y='8' width='7' height='7' rx='2' fill='%23fff' opacity='.7'/><rect x='8' y='17' width='7' height='7' rx='2' fill='%23fff' opacity='.7'/><rect x='17' y='17' width='7' height='7' rx='2' fill='%23fff' opacity='.45'/></svg>">
+<style>
+  :root {
+    --bg: #13141A;
+    --surface: #1C1E26;
+    --line: #2A2E38;
+    --text: #E7E9EF;
+    --muted: #858B9A;
+    --accent: #7C5CFF;
+    --accent-hover: #9179FF;
+    --ok: #3DD68C;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ein ruhiger Schein hinter dem Kopf, kein Bild: nichts zu laden, und
+     bei jeder Fenstergroesse richtig. */
+  header {
+    position: relative;
+    overflow: hidden;
+    padding: 96px 24px 72px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    inset: -40% 0 auto;
+    height: 460px;
+    background: radial-gradient(ellipse at 50% 0%, #7C5CFF33, transparent 62%);
+    pointer-events: none;
+  }
+  header > * { position: relative; }
+
+  .mark {
+    width: 64px; height: 64px;
+    margin: 0 auto 26px;
+    display: block;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.1rem, 6vw, 3.1rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+
+  .claim {
+    margin: 14px auto 0;
+    max-width: 34rem;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .actions {
+    margin-top: 34px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  a.button {
+    display: inline-block;
+    padding: 13px 26px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s;
+  }
+  a.button:hover { background: var(--accent-hover); }
+
+  a.ghost {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+  a.ghost:hover { background: var(--surface); }
+
+  .hint {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: .82rem;
+  }
+
+  main {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 72px 24px 96px;
+  }
+
+  h2 {
+    font-size: .78rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0 0 22px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .93rem;
+  }
+
+  .note {
+    margin-top: 56px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 24px;
+    color: var(--muted);
+    font-size: .92rem;
+  }
+  .note strong { color: var(--text); font-weight: 600; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 30px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .85rem;
+  }
+  footer a { color: var(--muted); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    a.button { transition: background .15s, transform .15s; }
+    a.button:hover { transform: translateY(-1px); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+    <rect width="32" height="32" rx="8" fill="#7C5CFF"/>
+    <rect x="8" y="8" width="7" height="7" rx="2" fill="#fff"/>
+    <rect x="17" y="8" width="7" height="7" rx="2" fill="#fff" opacity=".7"/>
+    <rect x="8" y="17" width="7" height="7" rx="2" fill="#fff" opacity=".7"/>
+    <rect x="17" y="17" width="7" height="7" rx="2" fill="#fff" opacity=".45"/>
+  </svg>
+
+  <h1>Multiverse Deck</h1>
+  <p class="claim">
+    Ein Macro-Pad, das mitwächst: ein Master-Modul mit Touchdisplay, und
+    daneben steckst du an, was du brauchst — Tasten, Schieberegler,
+    Drehregler.
+  </p>
+
+  <div class="actions">
+    <a class="button" href="https://github.com/Kampfkeksgit/multiverse-streamdeck-releases/releases/latest">
+      Für Windows herunterladen
+    </a>
+    <a class="button ghost" href="https://github.com/Kampfkeksgit/multiverse-streamdeck-releases/releases">
+      Alle Fassungen
+    </a>
+  </div>
+
+  <p class="hint">Windows 10 oder neuer · installiert auch ohne Administrator</p>
+</header>
+
+<main>
+  <h2>Was es kann</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Module anstecken</h3>
+      <p>
+        Links und rechts vom Master hängt, was du willst. Die Software führt
+        genau die Module, die wirklich stecken — keine feste Zahl, keine
+        leeren Plätze.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Zwanzig Kacheln</h3>
+      <p>
+        Das Touchdisplay zeigt deine Aktionen mit Symbol und Beschriftung.
+        Eigene Bilder gehen auch. Wird es eng, legst du sie in Ordner.
+      </p>
+    </div>
+    <div class="card">
+      <h3>OBS, Discord, Twitch</h3>
+      <p>
+        Szene wechseln, Mikro stumm, Clip schneiden. Dazu Lautstärke je
+        Programm, Tastenkürzel, Makros und Web-Anfragen für alles andere.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Auf dem Schirm</h3>
+      <p>
+        Uhr, Wetter und was gerade läuft — mit Cover. Das Hintergrundbild
+        suchst du dir selbst aus.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Belegungen wandern mit</h3>
+      <p>
+        Einmal anmelden, und deine Einrichtung liegt beim Konto. Am zweiten
+        Rechner ist sie wieder da — auf Ansage, nicht heimlich im
+        Hintergrund.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Updates von selbst</h3>
+      <p>
+        Gibt es etwas Neues, sagt es die Software und holt es auf Knopfdruck.
+        Auch die Firmware des Masters, über dasselbe Kabel.
+      </p>
+    </div>
+  </div>
+
+  <p class="note">
+    <strong>Noch im Bau.</strong> Die PC-Software läuft, die Master-Firmware
+    baut durch. Was fehlt: der Treiber für das Display und der CAN-Bus zu den
+    Satelliten. Ohne Hardware lässt sich trotzdem alles ausprobieren — die
+    Software bringt einen Simulator mit.
+  </p>
+</main>
+
+<footer>
+  <a href="https://github.com/Kampfkeksgit/multiverse-streamdeck-releases">Releases auf GitHub</a>
+  · Kampfkeks
+</footer>
+
+</body>
+</html>
